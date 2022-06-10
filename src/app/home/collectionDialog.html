@@ -1,0 +1,35 @@
+<div style="padding-bottom: 20px;" class="d-flex justify-content-between">
+  <div class="p-2">
+    <button  (click)="onNoClick()" mat-raised-button>Close</button>
+  </div>
+  <div class="p-2 me-auto">
+    <button (click)="onNoClick()" [routerLink]="['/movies/collections']" mat-raised-button>Collections Page</button>
+  </div>
+</div>
+
+<div class="mat-elevation-z8">
+  <table style="width: 100%;" mat-table [dataSource]="dataSource1">
+    <!-- Name Column -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef> Title </th>
+      <td mat-cell *matCellDef="let element"> {{element.key}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="add">
+      <th mat-header-cell *matHeaderCellDef> Add To Collection </th>
+      <td mat-cell *matCellDef="let element"> <button mat-raised-button (click)="addToLocalStorage(element.id, element.key,element.desc)">Add</button> </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                 showFirstLastButtons
+                 aria-label="Select page of periodic elements">
+  </mat-paginator>
+</div>
+
+
+
+

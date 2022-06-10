@@ -1,0 +1,28 @@
+<div class="d-flex justify-content-center" style="margin-top: 100px">
+  <mat-card>
+    <mat-card-title>Create Collection</mat-card-title>
+    <form [formGroup]="form" (ngSubmit)="createCollection()">
+    <div class="d-flex flex-column">
+      <div class="p-2 form-group">
+        <mat-form-field appearance="fill">
+          <mat-label>Title</mat-label>
+          <input  type="text" name="title" formControlName = "title" matInput>
+          <mat-error *ngIf="f['title'].errors">Title is required</mat-error>
+        </mat-form-field>
+
+      </div>
+      <div class="p-2 form-group">
+        <mat-form-field appearance="fill">
+          <mat-label>Description</mat-label>
+          <input  type="text" name="desc" formControlName = "desc" matInput>
+          <mat-error *ngIf="f['desc'].errors">Description is required</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="p-2">
+        <button [disabled]="form.invalid" type="submit" mat-raised-button>Create</button>
+      </div>
+    </div>
+      </form>
+  </mat-card>
+</div>
+

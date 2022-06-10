@@ -1,0 +1,38 @@
+<div class="d-flex justify-content-end">
+  <button (click)="onNoClick()" style="text-align:right" mat-raised-button [routerLink]="['']">Home</button>
+</div>
+<div class="d-flex justify-content-between">
+  <div class="p-2">
+    <img style="width: 200px; height:380px;" src="{{data.poster_path}}">
+  </div>
+  <div class="p-2">
+    <h1>{{data.title}}</h1>
+    <span class="material-icons">star</span>
+    <span class="material-icons">star</span>
+    <span class="material-icons">star</span>
+    <span class="material-icons">star</span>
+    <span class="material-icons">star</span>
+    <span style="font-size: 1.7em;">({{data.vote_average}})</span>
+    <h3>{{data.overview}}</h3>
+    <h4>Release Date: {{data.release_date}}</h4>
+    <h4>Budget: {{data.budget}}</h4>
+    <h4>Incoming: {{data.revenue}}</h4>
+    <h4 >Spoken Language: {{data.spoken_languages}}</h4>
+  </div>
+  <div class="p-2"></div>
+</div>
+<div class="d-flex justify-content-between">
+  <div class="p-2 me-auto"><p>Reviews({{data.vote_count}})</p></div>
+  <div class="p-2" style="margin-top: 5px"><p>{{foo}}</p></div>
+  <div class="p-2"><input (change)="changeFn($event)" style="padding-top: 12px;" type="range" class="form-range" min="0" max="10" step="0.5" id="vote"></div>
+  <div class="p-2"><button (click)="sendVote(foo)" mat-raised-button>Vote</button></div>
+</div>
+
+
+
+
+
+
+
+
+

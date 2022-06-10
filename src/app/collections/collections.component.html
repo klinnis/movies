@@ -1,0 +1,11 @@
+
+<div  class="row">
+  <h1 style="text-align: center; margin-top: 60px; padding-bottom: 40px; font-size: 3em">Your Favorite Collections</h1>
+  <div class="d-inline-flex justify-content-center" style="padding-bottom: 60px;">
+    <button  mat-raised-button [routerLink]="['/movies/collections/create']">Create a Collection</button>
+  </div>
+  <div style="padding-bottom: 10px" class="col-4"  *ngFor="let collections of data; let i = index">
+      <button style="padding: 100px; font-size: 3em; width: 100%"mat-raised-button [routerLink]="['/movies/collections/collection-movies/', collections]">{{collections}}</button>
+  </div>
+</div>
+
