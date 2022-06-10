@@ -19,23 +19,19 @@
   </mat-card>
 </div>
 <br>
-
 <div class="mat-elevation-z8">
   <table mat-table [dataSource]="dataSource">
 
-    <!-- Name Column -->
     <ng-container matColumnDef="poster_path">
       <th mat-header-cell *matHeaderCellDef> Image </th>
       <td mat-cell *matCellDef="let element"> <img style="width: 70px; height:70px;  padding: 10px;" src ="{{baseImageUrl+element.poster_path}}"> </td>
     </ng-container>
 
-    <!-- Name Column -->
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef> Title </th>
       <td mat-cell *matCellDef="let element"> {{element.title}} </td>
     </ng-container>
 
-    <!-- Name Column -->
     <ng-container matColumnDef="vote_average">
       <th mat-header-cell *matHeaderCellDef> Vote </th>
       <td mat-cell *matCellDef="let element"> {{element.vote_average}} </td>

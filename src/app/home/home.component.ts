@@ -2,17 +2,10 @@ import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from "../../services/api.service";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
-import {ActivatedRoute, Router} from "@angular/router";
+import {Router} from "@angular/router";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {NumberInput} from "@angular/cdk/coercion";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-
-export interface PeriodicElement {
-  poster_path: string;
-  title: string;
-  vote_average: Number;
-  id: Number;
-}
 
 export interface CollectionData {
 
@@ -22,7 +15,6 @@ export interface CollectionData {
   id: Number;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [];
 let collections_data: CollectionData[] = [];
 
 
@@ -37,25 +29,22 @@ let collections_data: CollectionData[] = [];
 export class HomeComponent implements OnInit {
 
   form: FormGroup = new FormGroup({
-    search: new FormControl('',Validators.minLength(3))});
+  search: new FormControl('',Validators.minLength(3))});
 
   get f(){
     return this.form.controls;
   }
 
-
   displayedColumns: string[] = ['poster_path','title','vote_average','details', 'collection'];
   dataSource = new MatTableDataSource();
   dataSource1 = new MatTableDataSource<CollectionData>(collections_data);
   baseImageUrl = 'https://image.tmdb.org/t/p/original';
-  movies: any;
   collections: any[] = [];
   empty: boolean = true;
   width: string = '600';
   height: string = '100';
   length: NumberInput = 0;
   input_error = '';
-
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
 
@@ -81,14 +70,11 @@ export class HomeComponent implements OnInit {
   }
 
   onMoviesSearch(){
-
-      this.apiService.getMovies(this.form.value.search).subscribe((result:any) => {
-        this.dataSource.data = result.results;
-        this.length = result.total_results;
-        this.input_error = '';
-      });
-
-
+    this.apiService.getMovies(this.form.value.search).subscribe((result:any) => {
+    this.dataSource.data = result.results;
+    this.length = result.total_results;
+    this.input_error = '';
+    });
   }
 
   findMovie(element: any){
@@ -106,7 +92,7 @@ export class HomeComponent implements OnInit {
       }
     }
     this.collections.forEach(res=> {
-      collections_data.push({message: res.message, key: res.key, desc: res.desc,id: element.id});
+    collections_data.push({message: res.message, key: res.key, desc: res.desc,id: element.id});
     });
     this.dataSource1.data = collections_data;
     // @ts-ignore
@@ -128,14 +114,11 @@ export class CollectionDialog {
   dataSource1 = new MatTableDataSource<CollectionData>(collections_data);
   displayedColumns: string[] = ['title','add'];
   baseImageUrl = 'https://image.tmdb.org/t/p/original';
-  olddata: any[] = [];
-
 
   ngOnInit() {
     this.apiservice.flagEmpty.subscribe(value => {
-        this.empty = value;
+    this.empty = value;
     });
-
     this.dataSource1 = new MatTableDataSource(collections_data);
     this.dataSource1.data = collections_data;
   }
@@ -146,12 +129,6 @@ export class CollectionDialog {
 
   onNoClick(): void {
     this.dialogRef.close();
-  }
-
-
-  createCollection() {
-     this.router.navigateByUrl('movies/collections/create');
-     this.onNoClick();
   }
 
   addToLocalStorage(id: any, key: any, desc:any) {
@@ -172,16 +149,15 @@ export class CollectionDialog {
       vote_average: res.vote_average,
       vote_count: res.vote_count,
       spoken_languages: res.spoken_languages[0].english_name}];
-    parsed_array1.push(data);
-    if(parsed.desc == undefined){
-      parsed_array2.push(data);
-      localStorage.setItem(''+key,JSON.stringify(parsed_array2));
-      parsed_array2 = [];
-    }
-       else {
+      parsed_array1.push(data);
+      if(parsed.desc == undefined){
+       parsed_array2.push(data);
+       localStorage.setItem(''+key,JSON.stringify(parsed_array2));
+       parsed_array2 = [];
+     }
+      else {
           localStorage.setItem(''+key,JSON.stringify(parsed_array1));
         }
-
     });
   }
 
