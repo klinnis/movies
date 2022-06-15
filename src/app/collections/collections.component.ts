@@ -17,9 +17,7 @@ export class CollectionsComponent implements OnInit {
       if(localStorage.key( i ) !== 'movieId'){
         this.data.push(localStorage.key( i ));
       }
-
       }
-
     }
   }
 

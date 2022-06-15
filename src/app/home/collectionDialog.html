@@ -17,7 +17,7 @@
 
     <ng-container matColumnDef="add">
       <th mat-header-cell *matHeaderCellDef> Add To Collection </th>
-      <td mat-cell *matCellDef="let element"> <button mat-raised-button (click)="addToLocalStorage(element.id, element.key,element.desc)">Add</button> </td>
+      <td mat-cell *matCellDef="let element"> <button [disabled]=element.disableButton mat-raised-button (click)="addToLocalStorage(element,element.id, element.key,element.desc)">Add</button></td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -25,6 +25,7 @@
   </table>
 
   <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                 [length]="length_collections"
                  showFirstLastButtons
                  aria-label="Select page of periodic elements">
   </mat-paginator>

@@ -15,9 +15,7 @@ export class CreateCollectionComponent implements OnInit {
 
   constructor(private router: Router) { }
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void {}
 
   get f(){
     return this.form.controls;

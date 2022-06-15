@@ -6,17 +6,17 @@ import {Router} from "@angular/router";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {NumberInput} from "@angular/cdk/coercion";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {takeUntil} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 export interface CollectionData {
 
   key: string;
   desc: string;
-  message: string;
   id: Number;
 }
 
 let collections_data: CollectionData[] = [];
-
 
 @Component({
   selector: 'app-home',
@@ -24,9 +24,9 @@ let collections_data: CollectionData[] = [];
   styleUrls: ['./home.component.css']
 })
 
-
-
 export class HomeComponent implements OnInit {
+
+  destroy: Subject<boolean> = new Subject<boolean>();
 
   form: FormGroup = new FormGroup({
   search: new FormControl('',Validators.minLength(3))});
@@ -41,26 +41,28 @@ export class HomeComponent implements OnInit {
   baseImageUrl = 'https://image.tmdb.org/t/p/original';
   collections: any[] = [];
   empty: boolean = true;
-  width: string = '600';
-  height: string = '100';
   length: NumberInput = 0;
   input_error = '';
+  count: any = 0;
+  length_collections: any = 0;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator | any;
 
   ngAfterViewInit() {
-    // @ts-ignore
     this.dataSource.paginator = this.paginator;
-    // @ts-ignore
     this.dataSource1.paginator = this.paginator;
   }
 
   constructor(private apiService: ApiService, private router: Router, private dialog: MatDialog) { }
 
   ngOnInit(): void {
+    this.apiService.home_movies.pipe(takeUntil(this.destroy)).subscribe(result => {
+      this.length = result;
+    });
   }
 
-  checkAlpaNumeric(text: any){
+  checkAlphaNumeric(text: any){
     let inp = String.fromCharCode(text);
     if (/[a-zA-Z0-9]/.test(inp)) {
       return true;
@@ -70,9 +72,10 @@ export class HomeComponent implements OnInit {
   }
 
   onMoviesSearch(){
-    this.apiService.getMovies(this.form.value.search).subscribe((result:any) => {
+    this.apiService.getMovies(this.form.value.search).pipe(takeUntil(this.destroy)).subscribe((result:any) => {
     this.dataSource.data = result.results;
     this.length = result.total_results;
+    this.apiService.home_movies.next(this.length);
     this.input_error = '';
     });
   }
@@ -88,18 +91,20 @@ export class HomeComponent implements OnInit {
       if(localStorage.key( i ) !== 'movieId'){
         const title = localStorage.key(i);
         const desc = JSON.parse(''+localStorage.getItem(''+localStorage.key( i )));
-        this.collections.push({message: 'No Collections',key:title, desc: desc.desc, id: element.id});
+        this.collections.push({key:title, desc: desc.desc, id: element.id});
       }
     }
     this.collections.forEach(res=> {
-    collections_data.push({message: res.message, key: res.key, desc: res.desc,id: element.id});
+    this.length_collections += 1;
+    collections_data.push({ key: res.key, desc: res.desc,id: element.id});
     });
+    this.apiService.collections_dialog.next(this.length_collections);
     this.dataSource1.data = collections_data;
     // @ts-ignore
     this.dataSource1.paginator = this.paginator;
     this.dialog.open(CollectionDialog,{
       width: '800px',
-      height: '500px'
+      height: '600px'
     });
   }
 }
@@ -114,27 +119,36 @@ export class CollectionDialog {
   dataSource1 = new MatTableDataSource<CollectionData>(collections_data);
   displayedColumns: string[] = ['title','add'];
   baseImageUrl = 'https://image.tmdb.org/t/p/original';
+  destroy: Subject<boolean> = new Subject<boolean>();
+  length_collections: any;
+  key: any;
 
   ngOnInit() {
-    this.apiservice.flagEmpty.subscribe(value => {
+    this.apiservice.flagEmpty.pipe(takeUntil(this.destroy)).subscribe(value => {
     this.empty = value;
     });
     this.dataSource1 = new MatTableDataSource(collections_data);
     this.dataSource1.data = collections_data;
+    this.apiservice.collections_dialog.pipe(takeUntil(this.destroy)).subscribe(result => {
+    this.length_collections = result;
+    });
   }
 
   constructor(
     public dialogRef: MatDialogRef<CollectionDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: CollectionData, private apiservice: ApiService, private router: Router,public dialog: MatDialog ) {}
+    @Inject(MAT_DIALOG_DATA) public data: CollectionData, private apiservice: ApiService) {}
 
   onNoClick(): void {
     this.dialogRef.close();
   }
 
-  addToLocalStorage(id: any, key: any, desc:any) {
+
+
+  addToLocalStorage(member: any,id: any, key: any, desc:any) {
+    member.disableButton = !member.disableButton;
     let parsed_array1:any[] = [];
     let parsed_array2:any[] = [];
-    this.apiservice.getOneMovie(id).subscribe((res: any) => {
+    this.apiservice.getOneMovie(id).pipe(takeUntil(this.destroy)).subscribe((res: any) => {
     const parsed = JSON.parse(''+localStorage.getItem(''+key));
     parsed_array2 = JSON.parse(''+localStorage.getItem(''+key));
     let data = [{
@@ -151,13 +165,21 @@ export class CollectionDialog {
       spoken_languages: res.spoken_languages[0].english_name}];
       parsed_array1.push(data);
       if(parsed.desc == undefined){
-       parsed_array2.push(data);
-       localStorage.setItem(''+key,JSON.stringify(parsed_array2));
-       parsed_array2 = [];
+        let duplicates = false;
+        parsed_array2.forEach((element) => {
+        if(element[0].id == data[0].id){
+          duplicates = true;
+        }
+       });
+        if(!duplicates) {
+          parsed_array2.push(data);
+        }
+        localStorage.setItem(''+key,JSON.stringify(parsed_array2));
      }
       else {
-          localStorage.setItem(''+key,JSON.stringify(parsed_array1));
+        localStorage.setItem(''+key,JSON.stringify(parsed_array1));
         }
+
     });
   }
 

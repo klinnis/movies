@@ -23,9 +23,9 @@
 </div>
 <div class="d-flex justify-content-between">
   <div class="p-2 me-auto"><p>Reviews({{data.vote_count}})</p></div>
-  <div class="p-2" style="margin-top: 5px"><p>{{foo}}</p></div>
+  <div class="p-2" style="margin-top: 5px"><p>{{voting}}</p></div>
   <div class="p-2"><input (change)="changeFn($event)" style="padding-top: 12px;" type="range" class="form-range" min="0" max="10" step="0.5" id="vote"></div>
-  <div class="p-2"><button (click)="sendVote(foo)" mat-raised-button>Vote</button></div>
+  <div class="p-2"><button (click)="sendVote(voting)" mat-raised-button>Vote</button></div>
 </div>
 
 

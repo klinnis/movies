@@ -2,6 +2,8 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {ApiService} from "../../services/api.service";
+import {takeUntil} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 export interface DialogData {
   title: string;
@@ -20,23 +22,24 @@ export interface DialogData {
   templateUrl: './movie-details.component.html',
   styleUrls: ['./movie-details.component.css']
 })
-export class MovieDetailsComponent implements OnInit {
 
+export class MovieDetailsComponent implements OnInit {
 
   data: any;
   movie: any;
   baseImageUrl = 'https://image.tmdb.org/t/p/original';
+  destroy: Subject<boolean> = new Subject<boolean>();
   constructor(public dialog: MatDialog, private actRoute: ActivatedRoute, private apiservice: ApiService) { }
 
   ngOnInit(): void {
-    this.actRoute.paramMap.subscribe((params) => {
-      this.apiservice.getOneMovie(params.get('id')!).subscribe(movie => {
+    this.actRoute.paramMap.pipe(takeUntil(this.destroy)).subscribe((params) => {
+      this.apiservice.getOneMovie(params.get('id')!).pipe(takeUntil(this.destroy)).subscribe(movie => {
         this.movie = movie;
         const id = params.get('id');
         localStorage.setItem('movieId', JSON.stringify(id));
         this.dialog.open(DialogOverviewExampleDialog, {
           width: '800px',
-          height: '500px',
+          height: '650px',
           data: {title: this.movie.title,
                  overview: this.movie.overview,
                  poster_path: this.baseImageUrl+this.movie.poster_path,
@@ -50,8 +53,6 @@ export class MovieDetailsComponent implements OnInit {
       });
     });
   }
-
-
 }
 
 @Component({
@@ -60,34 +61,31 @@ export class MovieDetailsComponent implements OnInit {
 })
 export class DialogOverviewExampleDialog {
 
-  foo = '';
-  numSequence(n: number): Array<number> {
-    return Array(n);
-  }
+  destroy: Subject<boolean> = new Subject<boolean>();
+  voting: any = '';
 
   changeFn(e: any) {
-    this.foo = e.target.value;
+    this.voting = e.target.value;
   }
 
   sendVote(vote: any) {
-   this.apiservice.createSession().subscribe(res=> {
-
-     // @ts-ignore
-     const movieId = JSON.parse(localStorage.getItem('movieId'));
-     // @ts-ignore
-     this.apiservice.postReview(vote,movieId,res.guest_session_id).subscribe(result => {
-       console.log(result);
+   this.apiservice.createSession().pipe(takeUntil(this.destroy)).subscribe((res: any)=> {
+     const movieId = JSON.parse(''+localStorage.getItem('movieId'));
+     this.apiservice.postReview(vote,movieId,res.guest_session_id).pipe(takeUntil(this.destroy)).subscribe((result: any) => {
+       if(result.success){
+         this.voting = 'Thank you!';
+       } else {
+         this.voting = 'Something went wrong!';
+       }
      });
    });
-
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   constructor(
     public dialogRef: MatDialogRef<DialogOverviewExampleDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData, private apiservice: ApiService, private actRoute: ActivatedRoute,public dialog: MatDialog ) {}
+    @Inject(MAT_DIALOG_DATA) public data: DialogData, private apiservice: ApiService) {}
 
   onNoClick(): void {
     this.dialogRef.close();

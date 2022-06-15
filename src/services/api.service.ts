@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import { Subject } from 'rxjs';
-import {DialogData} from "../app/movie-details/movie-details.component";
 import {BehaviorSubject} from "rxjs";
+import {Subject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -10,25 +9,27 @@ import {BehaviorSubject} from "rxjs";
 export class ApiService {
 
   flagEmpty = new BehaviorSubject<Boolean>(false);
-  localMovie = new Subject();
-  searchText = new Subject();
+  baseApiUrl = 'https://api.themoviedb.org/3/';
+  apiKey = '?api_key=85204a8cc33baf447559fb6d51b18313';
+  collections_dialog = new BehaviorSubject<Number>(0);
+  home_movies = new BehaviorSubject<any>(0);
 
   constructor(private http: HttpClient) { }
 
   getMovies(event: any){
-    return this.http.get('https://api.themoviedb.org/3/search/movie?api_key=85204a8cc33baf447559fb6d51b18313&query='+event);
+    return this.http.get(this.baseApiUrl+'search/movie'+this.apiKey+'&query='+event);
   }
 
   getOneMovie(id: any) {
-    return this.http.get('https://api.themoviedb.org/3/movie/'+id+'?api_key=85204a8cc33baf447559fb6d51b18313');
+    return this.http.get(this.baseApiUrl+'movie/'+id+this.apiKey);
   }
 
   createSession() {
-    return this.http.get('https://api.themoviedb.org/3/authentication/guest_session/new?api_key=85204a8cc33baf447559fb6d51b18313');
+    return this.http.get(this.baseApiUrl+'authentication/guest_session/new'+this.apiKey);
   }
 
   postReview(rate: any, movieId:any, sessionId: any) {
-    return this.http.post('https://api.themoviedb.org/3/movie/'+movieId+'/rating?api_key=85204a8cc33baf447559fb6d51b18313&guest_session_id='+sessionId,{value: rate});
+    return this.http.post(this.baseApiUrl+'movie/'+movieId+'/rating'+this.apiKey+'&guest_session_id='+sessionId,{value: rate});
   }
 
 }
